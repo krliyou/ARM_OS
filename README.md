@@ -83,6 +83,7 @@ LY_OS 操作系统是适用于高安全高可靠的商用场合，使用全静�
 + [x] cortex-m3
 + [ ] cortex-m4
 + [ ] cortex-m7
++ [ ] cortex-A7
 
 
 
