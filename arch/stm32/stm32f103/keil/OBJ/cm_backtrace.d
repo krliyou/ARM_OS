@@ -1,0 +1,9 @@
+.\obj\cm_backtrace.o: ..\..\..\..\components\arm_backtrace\cm_backtrace.c
+.\obj\cm_backtrace.o: ..\..\..\..\components\arm_backtrace\cm_backtrace.h
+.\obj\cm_backtrace.o: ..\..\..\..\components\arm_backtrace\cmb_def.h
+.\obj\cm_backtrace.o: ..\..\..\..\components\arm_backtrace\cmb_cfg.h
+.\obj\cm_backtrace.o: D:\36Keil_5_MDK\install\ARM\ARMCC\Bin\..\include\stdint.h
+.\obj\cm_backtrace.o: D:\36Keil_5_MDK\install\ARM\ARMCC\Bin\..\include\stdlib.h
+.\obj\cm_backtrace.o: D:\36Keil_5_MDK\install\ARM\ARMCC\Bin\..\include\stdbool.h
+.\obj\cm_backtrace.o: D:\36Keil_5_MDK\install\ARM\ARMCC\Bin\..\include\string.h
+.\obj\cm_backtrace.o: D:\36Keil_5_MDK\install\ARM\ARMCC\Bin\..\include\stdio.h

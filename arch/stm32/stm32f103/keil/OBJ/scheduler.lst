@@ -1,0 +1,569 @@
+L 1 "..\..\..\..\kernel\scheduler.c"
+N
+N/**
+N* @file           : scheduler.c
+N* @autor          : liyou
+N* @date           : 2022/09/16
+N* All rights reserved.;
+N* @attention
+N*/
+N
+N#include "scheduler.h"
+L 1 "..\..\..\..\kernel\scheduler.h" 1
+N/**
+N* @file           : scheduler.h
+N* @autor          : liyou
+N* @date           : 2022/01/16
+N* All rights reserved.;
+N* @attention
+N*/
+N
+N#ifndef __SCHEDULER_H__
+N#define __SCHEDULER_H__
+N
+N#include "list.h"
+L 1 "..\..\..\..\kernel\list.h" 1
+N
+N/**
+N* @file           : list.h
+N* @autor          : liyou
+N* @date           : 2022/09/16
+N* All rights reserved.;
+N* @attention
+N*/
+N
+N#ifndef __LIST_H__
+N#define __LIST_H__
+N
+N#include "def.h"
+L 1 "..\..\..\..\kernel\def.h" 1
+N
+N/**
+N* @file           : def.h
+N* @autor          : liyou
+N* @date           : 2022/01/16
+N* All rights reserved.;
+N* @attention
+N*/
+N
+N#ifndef __TYPES_H__
+N#define __TYPES_H__
+N
+N#include "config.h"
+L 1 "..\..\..\..\..\ARM_OS\config.h" 1
+N
+N/**
+N* @file           : config.h
+N* @autor          : liyou
+N* @date           : 2021/09/02
+N* All rights reserved.
+N*/
+N
+N#define LY_OS_SW_VERSION 	"1.0.0"
+N
+N/* Kernel */
+N#define LY_THREAD_PRIORITY_MAX          32
+N#define LY_TIMER_N                      1
+N#define LY_TICK_MAX                 0xffffffff
+N#define ly_TIMER_SKIP_LIST_LEVEL 1
+N#define SystemCoreClock 8000000
+N#define LY_TICK_PER_SECOND 1000
+N#define LY_SEM_VALUE_MAX 65535U
+N#define LY_MB_ENTRY_MAX 65535U
+N
+N/* Finsh Configuration */
+N#define LY_USING_FINSH
+N#define FINSH_USING_HISTORY
+N#define FINSH_HISTORY_LINES	        5
+N//#define FINSH_USING_AUTH
+N#define FINSH_PASSWORD 				"1"
+N#define FINSH_PASSWORD_MIN 			 1
+N#define FINSH_PASSWORD_MAX 			5
+N#define FINSH_PROMPT "LY_OYA />"
+N#define FINSH_CMD_SIZE				20
+N#define FINSH_AUTO_COMPLETE
+N
+N/* USART Configuration */
+N#define USART_REC_LEN  			128 
+N
+L 14 "..\..\..\..\kernel\def.h" 2
+N
+Nstruct list_head 
+N{
+N	struct list_head *next, *prev;
+N};
+N
+Nstruct ly_timer
+N{
+N    struct list_head row[ly_TIMER_SKIP_LIST_LEVEL];
+X    struct list_head row[1];
+N
+N    void (*timeout_func)(void *parameter);             
+N    void            *parameter;                         
+N
+N    unsigned int    init_tick;                         
+N    unsigned int    timeout_tick;                  
+N
+N    unsigned char   flag;
+N};
+N
+Nstruct ly_task
+N{
+N    void            *sp;                                
+N    void            *entry;                                 
+N    void            *parameter;                             
+N    void            *stack_addr;                             
+N    unsigned int    stack_size;
+N    unsigned char   stat;
+N    unsigned char   current_priority;
+N    unsigned char   init_priority;                       
+N    unsigned long   init_tick;
+N    unsigned int    number_mask; 
+N    signed long	 error; 
+N    unsigned long   remaining_tick; 
+N    struct          ly_timer task_timer;
+N    struct          list_head  tlist; 
+N    void (*cleanup)(struct ly_task *tid); 
+N};
+N
+N/* boolean type definitions */
+N#define LY_TRUE                         1               /**< boolean true  */
+N#define LY_FALSE                        0               /**< boolean fails */
+N
+N/* null pointer definition */
+N#define LY_NULL                         0
+N
+N#define LY_EOK                          0               /**< There is no error */
+N#define LY_ERROR                        1               /**< A generic error happens */
+N#define LY_ETIMEOUT                     2               /**< Timed out */
+N#define LY_EFULL                        3               /**< The resource is full */
+N#define LY_EEMPTY                       4               /**< The resource is empty */
+N#define LY_ENOMEM                       5               /**< No memory */
+N#define LY_ENOSYS                       6               /**< No system */
+N#define LY_EBUSY                        7               /**< Busy */
+N#define LY_EIO                          8               /**< IO error */
+N#define LY_EINTR                        9               /**< Interrupted system call */
+N#define LY_EINVAL                       10              /**< Invalid argument */
+N#define LY_ETRAP                        11              /**< Trap event */
+N#define LY_ENOENT                       12              /**< No entry */
+N#define LY_ENOSPC                       13              /**< No space left */
+N
+Nenum
+N{
+N    LY_INTERRUPTIBLE = 0,
+N    LY_KILLABLE,
+N    LY_UNINTERRUPTIBLE,
+N};
+N
+N#define RALIGN(size, align)           (((size) + (align) - 1) & ~((align) - 1))
+N
+N#define ALIGN_DOWN(size, align)      ((size) & ~((align) - 1))
+N
+Ntypedef __SIZE_TYPE__ size_t;
+Xtypedef unsigned int size_t;
+N
+N#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+N
+N#define container_of(ptr, type, member)     \
+N({			\
+N	const typeof(((type *)0)->member) * __mptr = (ptr);	\
+N	(type *)((char *)__mptr - offsetof(type, member)); \
+N})
+X#define container_of(ptr, type, member)     ({				const typeof(((type *)0)->member) * __mptr = (ptr);		(type *)((char *)__mptr - offsetof(type, member)); })
+N
+N#define LY_THREAD_INIT                       0x00              
+N#define LY_THREAD_CLOSE                      0x01               
+N#define LY_THREAD_READY                      0x02                
+N#define LY_THREAD_RUNNING                    0x03              
+N#define LY_THREAD_SUSPEND                    0x04               
+N
+N#define LY_THREAD_STAT_YIELD                 0x08         
+N#define LY_THREAD_STAT_MASK                  0x07
+N
+N
+N#define LY_TIMER_FLAG_DEACTIVATED       0x0             
+N#define LY_TIMER_FLAG_ACTIVATED         0x1             
+N#define LY_TIMER_FLAG_ONE_SHOT          0x0             
+N#define LY_TIMER_FLAG_PERIODIC          0x2             
+N
+N#define LY_TIMER_FLAG_HARD_TIMER        0x0             
+N#define LY_TIMER_FLAG_SOFT_TIMER        0x4           
+N
+N#define LY_TIMER_CTRL_SET_TIME          0x0            
+N#define LY_TIMER_CTRL_GET_TIME          0x1             
+N#define LY_TIMER_CTRL_SET_ONESHOT       0x2            
+N#define LY_TIMER_CTRL_SET_PERIODIC      0x3            
+N#define LY_TIMER_CTRL_GET_STATE         0x4            
+N#define LY_TIMER_CTRL_GET_REMAIN_TIME   0x5             
+N#define LY_TIMER_CTRL_GET_FUNC          0x6             
+N#define LY_TIMER_CTRL_SET_FUNC          0x7            
+N#define LY_TIMER_CTRL_GET_PARM          0x8           
+N#define LY_TIMER_CTRL_SET_PARM          0x9            
+N
+N#define LY_IPC_FLAG_FIFO                0x00           
+N#define LY_IPC_FLAG_PRIO                0x01           
+N
+N#define LY_IPC_CMD_UNKNOWN              0x00           
+N#define LY_IPC_CMD_RESET                0x01           
+N#define LY_IPC_CMD_GET_STATE            0x02            
+N
+N#define LY_WAITING_FOREVER              -1             
+N#define LY_WAITING_NO                   0             
+N
+N#define LY_SIGNAL_COMMON_WAKEUP_MASK         0x02
+N#define LY_SIGNAL_KILL_WAKEUP_MASK           0x01
+N
+N#define LY_THREAD_SUSPEND_INTERRUPTIBLE      0x04                                                      
+N
+N#define LY_THREAD_SUSPEND_KILLABLE           \
+N	(LY_THREAD_SUSPEND | LY_SIGNAL_COMMON_WAKEUP_MASK)                            
+X#define LY_THREAD_SUSPEND_KILLABLE           	(LY_THREAD_SUSPEND | LY_SIGNAL_COMMON_WAKEUP_MASK)                            
+N
+N#define LY_THREAD_SUSPEND_UNINTERRUPTIBLE    \
+N	(LY_THREAD_SUSPEND | LY_SIGNAL_COMMON_WAKEUP_MASK | LY_SIGNAL_KILL_WAKEUP_MASK) 
+X#define LY_THREAD_SUSPEND_UNINTERRUPTIBLE    	(LY_THREAD_SUSPEND | LY_SIGNAL_COMMON_WAKEUP_MASK | LY_SIGNAL_KILL_WAKEUP_MASK) 
+N
+N
+N#endif
+N
+L 14 "..\..\..\..\kernel\list.h" 2
+N
+Nstatic inline void list_init(struct list_head *list)
+N{
+N	list->next = list;
+N	list->prev = list;
+N}
+N
+Nstatic inline void __list_add(struct list_head *new,	
+N				struct list_head *prev, struct list_head *next)
+N{
+N	next->prev = new;	
+N	new->next = next;
+N	new->prev = prev;
+N	prev->next = new;
+N}
+N
+Nstatic inline void list_add_after(struct list_head *new, 
+N				struct list_head *head)
+N{
+N	__list_add(new, head, head->next);
+N}
+N
+Nstatic inline void list_add_before(struct list_head *new, 
+N				struct list_head *head)
+N{
+N	__list_add(new, head->prev, head);
+N}
+N
+Nstatic inline int list_empty(const struct list_head *head)
+N{
+N	return head->next == head;
+N}
+N
+Nstatic inline void list_del(struct list_head *entry)
+N{
+N    entry->next->prev = entry->prev;
+N    entry->prev->next = entry->next;
+N    entry->next = entry;
+N    entry->prev = entry;
+N}
+N
+N#define list_entry(ptr, type, member) \
+N	container_of(ptr, type, member)
+X#define list_entry(ptr, type, member) 	container_of(ptr, type, member)
+N
+N#endif
+N
+L 13 "..\..\..\..\kernel\scheduler.h" 2
+N#include "def.h"
+N#include "timer.h"
+L 1 "..\..\..\..\kernel\timer.h" 1
+N
+N/**
+N* @file           : timer.h
+N* @autor          : liyou
+N* @date           : 2022/10/16
+N* All rights reserved.;
+N* @attention
+N*/
+N
+N#ifndef __TIMER_H__
+N#define __TIMER_H__
+N
+N#include "list.h"
+N#include "def.h"
+N#include "irq.h"
+L 1 "..\..\..\..\kernel\irq.h" 1
+N/**
+N* @file           : irq.h
+N* @autor          : liyou
+N* @date           : 2023/09/18
+N* All rights reserved.;
+N* @attention
+N*/
+N
+N#ifndef __IRQ_H__
+N#define __IRQ_H__
+N
+Nvoid interrupt_enter(void);
+N
+Nvoid interrupt_leave(void);
+N
+Nextern unsigned int interrupt_enable(unsigned int val);
+N
+Nextern unsigned int interrupt_disable(void);
+N
+N#define __interrupt_enter(void)     ly_interrupt_nest++
+N    
+N#define __interrupt_leave(void)     ly_interrupt_nest--
+N
+N#endif
+N
+N
+L 16 "..\..\..\..\kernel\timer.h" 2
+N
+Nvoid ly_timer_init(struct ly_timer* timer, 
+N                        void (*timeout)(void *parameter),
+N                        void       *parameter,
+N                        unsigned int   time,
+N                        unsigned char  flag);
+N
+Nvoid system_timer_init(void);
+N
+Nunsigned int __timer_stop(struct ly_timer* timer);
+N
+Nunsigned int ly_timer_stop(struct ly_timer* timer);
+N
+Nvoid  ly_timer_check(void);
+N
+Nextern unsigned int get_current_tick(void);
+N
+Nextern void ly_schedule(void);
+N
+Nunsigned int ly_timer_start(struct ly_timer* timer);
+N
+N#endif
+N
+N
+N
+L 15 "..\..\..\..\kernel\scheduler.h" 2
+N#include "irq.h"
+N
+Nextern volatile unsigned int ly_interrupt_nest;
+N
+Nvoid system_scheduler_init(void);
+N
+Nvoid __schedule_insert_thread(struct ly_task *task);
+N
+Nextern struct ly_task *ly_current_thread;
+N
+Nvoid system_scheduler_start(void);
+N
+Nextern void ly_context_switch_to(unsigned int sp);
+N
+Nextern void ly_remove_ready_task(struct ly_task *task);
+N
+Nvoid ly_schedule(void);
+N
+Nextern void ly_context_switch(unsigned int from, unsigned int to);
+N
+Nextern void ly_context_switch_interrupt
+N    (unsigned int from, unsigned int to, struct ly_task *from_thread, struct ly_task *to_thread);
+N
+N#endif
+N
+L 11 "..\..\..\..\kernel\scheduler.c" 2
+N
+Nstruct list_head ly_thread_priority_table[LY_THREAD_PRIORITY_MAX] = {0};
+Xstruct list_head ly_thread_priority_table[32] = {0};
+N
+Nunsigned int ly_thread_ready_priority_group;
+Nunsigned int ly_current_priority;
+N
+Nvoid system_scheduler_init(void)
+N{
+N	unsigned long offset;
+N
+N	for (offset = 0; offset < LY_THREAD_PRIORITY_MAX; offset ++)
+X	for (offset = 0; offset < 32; offset ++)
+N    {
+N        list_init(&ly_thread_priority_table[offset]);
+N    }
+N
+N    ly_thread_ready_priority_group = 0;
+N}
+N
+Nvoid __schedule_insert_thread(struct ly_task *task)
+N{
+N	unsigned int level;
+N
+N   	level = interrupt_disable();
+N	
+N    if (task == ly_current_thread)
+N    {
+N        task->stat =LY_THREAD_RUNNING | (task->stat & ~LY_THREAD_STAT_MASK);
+X        task->stat =0x03 | (task->stat & ~0x07);
+N        interrupt_enable(level);
+N    }
+N
+N	if((task->stat & LY_THREAD_STAT_MASK) == LY_THREAD_RUNNING)
+X	if((task->stat & 0x07) == 0x03)
+N	{
+N		if((task->stat & LY_THREAD_STAT_MASK) != 0)
+X		if((task->stat & 0x07) != 0)
+N		{
+N			list_add_before(&(task->tlist), &(ly_thread_priority_table[task->current_priority]));
+N		}
+N		else
+N		{
+N			list_add_after(&(task->tlist), &(ly_thread_priority_table[task->current_priority]));
+N		}
+N	}
+N	else
+N	{
+N		list_add_before(&(task->tlist), &(ly_thread_priority_table[task->current_priority]));
+N	}
+N
+N	ly_thread_ready_priority_group |= task->number_mask;
+N	
+N	task->stat = LY_THREAD_READY | (task->stat & ~LY_THREAD_STAT_MASK);
+X	task->stat = 0x02 | (task->stat & ~0x07);
+N
+N	interrupt_enable(level);
+N}
+N
+N__asm int __rt_ffs(int value)
+N{
+N    CMP     r0, #0x00
+N    BEQ     exit
+N
+N    RBIT    r0, r0
+N    CLZ     r0, r0
+N    ADDS    r0, r0, #0x01
+N
+Nexit
+N    BX      lr
+N}
+N
+Nstatic struct ly_task* __get_highest_priority_task(unsigned int* group)
+N{
+N    struct ly_task *highest_priority_task;
+N    unsigned int highest_ready_priority;
+N
+N    highest_ready_priority = __rt_ffs(ly_thread_ready_priority_group) - 1;
+N    highest_priority_task = 
+N        list_entry(ly_thread_priority_table[highest_ready_priority].next, 
+N        struct ly_task, tlist);
+X        ({ const typeof(((struct ly_task *)0)->tlist) * __mptr = (ly_thread_priority_table[highest_ready_priority]. next); (struct ly_task *)((char *)__mptr - ((size_t) &((struct ly_task *)0)->tlist)); });
+N
+N     *group = highest_ready_priority;
+N
+N    return highest_priority_task;
+N}
+N
+Nvoid system_scheduler_start()
+N{
+N    struct ly_task *highest_priority_task;
+N	unsigned int highest_ready_priority;
+N
+N    highest_priority_task = __get_highest_priority_task(&highest_ready_priority);
+N
+N    ly_current_thread = highest_priority_task;
+N
+N    ly_remove_ready_task(highest_priority_task);
+N
+N    highest_priority_task->stat = LY_THREAD_RUNNING;
+X    highest_priority_task->stat = 0x03;
+N
+N    ly_context_switch_to((unsigned int)&highest_priority_task->sp);
+N}
+N
+Nvoid ly_schedule(void)
+N{
+N    unsigned int level;
+N    unsigned int highest_ready_priority;
+N    struct ly_task *to_thread;
+N    struct ly_task *from_thread;
+N
+N    level = interrupt_disable();
+N
+N    if (ly_thread_ready_priority_group != 0)
+N    {
+N        int need_insert_from_thread = 0;
+N
+N        to_thread = __get_highest_priority_task(&highest_ready_priority);
+N
+N        if ((ly_current_thread->stat & LY_THREAD_STAT_MASK) == LY_THREAD_RUNNING)
+X        if ((ly_current_thread->stat & 0x07) == 0x03)
+N        {
+N            if (ly_current_thread->current_priority < highest_ready_priority)
+N            {
+N                to_thread = ly_current_thread;
+N            }
+N            else if (ly_current_thread->current_priority == highest_ready_priority && 
+N                    (ly_current_thread->stat & LY_THREAD_STAT_YIELD) == 0)
+X                    (ly_current_thread->stat & 0x08) == 0)
+N            {
+N                to_thread = ly_current_thread;
+N            }
+N            else
+N            {
+N                need_insert_from_thread = 1;
+N            }
+N            
+N           // ly_current_thread->stat &= ~LY_THREAD_STAT_YIELD;
+N        }
+N
+N        if (to_thread != ly_current_thread)
+N        {
+N            ly_current_priority = highest_ready_priority;
+N            from_thread         = ly_current_thread;
+N            ly_current_thread   = to_thread;
+N
+N            if (need_insert_from_thread)
+N            {
+N                from_thread->stat = LY_THREAD_READY | (from_thread->stat & ~LY_THREAD_STAT_MASK);
+X                from_thread->stat = 0x02 | (from_thread->stat & ~0x07);
+N                __schedule_insert_thread(from_thread);
+N            }
+N
+N            ly_remove_ready_task(to_thread);
+N            to_thread->stat = LY_THREAD_RUNNING | (to_thread->stat & ~LY_THREAD_STAT_MASK);
+X            to_thread->stat = 0x03 | (to_thread->stat & ~0x07);
+N
+N            
+N            if (ly_interrupt_nest == 0)
+N            {
+N                ly_context_switch((unsigned int)&from_thread->sp, (unsigned int)&to_thread->sp);
+N
+N                interrupt_enable(level);
+N            }
+N
+N            if (ly_interrupt_nest != 0)
+N            {
+N                ly_context_switch_interrupt((unsigned int)&from_thread->sp,
+N                            (unsigned int)&to_thread->sp, from_thread, to_thread);
+N            }                   
+N        }  
+N        else
+N        {
+N            ly_remove_ready_task(ly_current_thread);
+N            ly_current_thread->stat = 
+N            LY_THREAD_RUNNING | (ly_current_thread->stat & ~LY_THREAD_STAT_MASK);
+X            0x03 | (ly_current_thread->stat & ~0x07);
+N        }
+N    }
+N
+N    interrupt_enable(level);
+N}
+N
+N
+N
+N
+N
+N
+N
+N
+N
+N
+N

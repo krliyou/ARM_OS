@@ -1,0 +1,10 @@
+.\obj\sys.o: board\System_Init\sys.c
+.\obj\sys.o: board\System_Init\sys.h
+.\obj\sys.o: D:\36Keil_5_MDK\install\ARM\ARMCC\Bin\..\include\stdint.h
+.\obj\sys.o: .\board\Register\gpio_register.h
+.\obj\sys.o: .\board\Register\cm3_register.h
+.\obj\sys.o: ..\..\..\..\lib\include\types.h
+.\obj\sys.o: D:\36Keil_5_MDK\install\ARM\ARMCC\Bin\..\include\stdio.h
+.\obj\sys.o: .\board\Interrupt\Nvic_config.h
+.\obj\sys.o: .\board\Interrupt\Nvic_compiler.h
+.\obj\sys.o: .\board\Interrupt\Nvic_armcc.h

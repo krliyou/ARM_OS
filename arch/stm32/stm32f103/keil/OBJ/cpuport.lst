@@ -1,0 +1,98 @@
+L 1 "..\..\..\..\board\arm\cortex-m3\cpuport.c"
+N
+N/**
+N* @file           : cpuport.c
+N* @autor          : liyou
+N* @date           : 2022/09/16
+N* All rights reserved.;
+N* @attention
+N*/
+N
+N#include "cpuport.h"
+L 1 "..\..\..\..\board\arm\cortex-m3\cpuport.h" 1
+N
+N/**
+N* @file           : cpuport.h
+N* @autor          : liyou
+N* @date           : 2022/09/16
+N* All rights reserved.;
+N* @attention
+N*/
+N
+N#ifndef __CPUPORT_H__
+N#define __CPUPORT_H__
+N
+N#define ALIGN_DOWN(size, align)      ((size) & ~((align) - 1))
+N
+Nstruct exception_stack_frame
+N{
+N    unsigned int r0;
+N    unsigned int r1;
+N    unsigned int r2;
+N    unsigned int r3;
+N    unsigned int r12;
+N    unsigned int lr;
+N    unsigned int pc;
+N    unsigned int psr;
+N};
+N
+Nstruct stack_frame
+N{
+N    unsigned int r4;
+N    unsigned int r5;
+N    unsigned int r6;
+N    unsigned int r7;
+N    unsigned int r8;
+N    unsigned int r9;
+N    unsigned int r10;
+N    unsigned int r11;
+N
+N    struct exception_stack_frame exception_stack_frame;
+N};
+N
+Nunsigned char *ly_stack_init(void *tentry, 
+N						void *parameter,
+N						unsigned char *stack_addr,
+N						void *texit);
+N
+N#endif
+L 11 "..\..\..\..\board\arm\cortex-m3\cpuport.c" 2
+N
+Nunsigned long ly_interrupt_from_thread;
+Nunsigned long ly_interrupt_to_thread;
+Nunsigned long ly_thread_switch_interrupt_flag;
+N
+Nunsigned char *ly_stack_init(void *tentry, 
+N				void *parameter, 
+N				unsigned char *stack_addr,
+N				void *texit)
+N{
+N    struct stack_frame *stack_frame;
+N    unsigned char      *stk;
+N    unsigned long       i;
+N
+N    stk  = stack_addr + sizeof(unsigned int);
+N    stk  = (unsigned char *)ALIGN_DOWN((unsigned int)stk, 8);
+X    stk  = (unsigned char *)(((unsigned int)stk) & ~((8) - 1));
+N    stk -= sizeof(struct stack_frame);
+N
+N    stack_frame = (struct stack_frame *)stk;
+N
+N    for (i = 0; i < sizeof(struct stack_frame) / sizeof(unsigned int); i ++)
+N    {
+N        ((unsigned int *)stack_frame)[i] = 0xdeadbeef;
+N    }
+N
+N    stack_frame->exception_stack_frame.r0  = (unsigned long)parameter;
+N    stack_frame->exception_stack_frame.r1  = 0;                        
+N    stack_frame->exception_stack_frame.r2  = 0;                      
+N    stack_frame->exception_stack_frame.r3  = 0;                        
+N    stack_frame->exception_stack_frame.r12 = 0;                     
+N    stack_frame->exception_stack_frame.lr  = (unsigned long)texit;     
+N    stack_frame->exception_stack_frame.pc  = (unsigned long)tentry;
+N    stack_frame->exception_stack_frame.psr = 0x01000000L;
+N
+N    return stk;
+N}
+N
+N

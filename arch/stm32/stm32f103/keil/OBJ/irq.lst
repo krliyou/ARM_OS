@@ -1,0 +1,58 @@
+L 1 "..\..\..\..\kernel\irq.c"
+N
+N/**
+N* @file           : irq.h
+N* @autor          : liyou
+N* @date           : 2022/09/20
+N* All rights reserved.;
+N* @attention
+N*/
+N
+N#include "irq.h"
+L 1 "..\..\..\..\kernel\irq.h" 1
+N/**
+N* @file           : irq.h
+N* @autor          : liyou
+N* @date           : 2023/09/18
+N* All rights reserved.;
+N* @attention
+N*/
+N
+N#ifndef __IRQ_H__
+N#define __IRQ_H__
+N
+Nvoid interrupt_enter(void);
+N
+Nvoid interrupt_leave(void);
+N
+Nextern unsigned int interrupt_enable(unsigned int val);
+N
+Nextern unsigned int interrupt_disable(void);
+N
+N#define __interrupt_enter(void)     ly_interrupt_nest++
+N    
+N#define __interrupt_leave(void)     ly_interrupt_nest--
+N
+N#endif
+N
+N
+L 11 "..\..\..\..\kernel\irq.c" 2
+N
+Nvolatile unsigned int ly_interrupt_nest;
+N
+Nvoid interrupt_enter(void)
+N{
+N	interrupt_disable();
+N    ly_interrupt_nest ++; 
+N}
+N
+Nvoid interrupt_leave(void)
+N{
+N    unsigned int level;
+N    level = interrupt_disable();
+N    ly_interrupt_nest --;
+N    interrupt_enable(level);
+N}
+N
+N
+N

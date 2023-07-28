@@ -1,0 +1,9 @@
+.\obj\nvic_config.o: board\Interrupt\Nvic_config.c
+.\obj\nvic_config.o: board\Interrupt\Nvic_config.h
+.\obj\nvic_config.o: .\board\Register\gpio_register.h
+.\obj\nvic_config.o: .\board\Register\cm3_register.h
+.\obj\nvic_config.o: ..\..\..\..\lib\include\types.h
+.\obj\nvic_config.o: D:\36Keil_5_MDK\install\ARM\ARMCC\Bin\..\include\stdio.h
+.\obj\nvic_config.o: D:\36Keil_5_MDK\install\ARM\ARMCC\Bin\..\include\stdint.h
+.\obj\nvic_config.o: board\Interrupt\Nvic_compiler.h
+.\obj\nvic_config.o: board\Interrupt\Nvic_armcc.h

@@ -1,0 +1,154 @@
+L 1 "..\..\..\..\lib\ringbuffer\kfifo.c"
+N
+N/*
+N * @file           : kfifo.c
+N * @autor          : liyou
+N * @date           : 2022/01/16
+N */
+N
+N#include "kfifo.h"
+L 1 "..\..\..\..\lib\ringbuffer\kfifo.h" 1
+N
+N/*
+N * @file           : kfifo.h
+N * @autor          : liyou
+N * @date           : 2022/01/16
+N */
+N
+N#ifndef __KFIFO_H
+N#define __KFIFO_H
+N
+N#include "kservice.h"
+L 1 "..\..\..\..\lib\include\kservice.h" 1
+N
+N
+N#ifndef __KERVICE_H
+N#define __KERVICE_H
+N
+Nvoid *ly_memcpy(void *dst, const void *src, unsigned long count);
+N
+Nchar *ly_strncpy(char *dst, const char *src, unsigned long n);
+N
+Nvoid *ly_memset(void *s, int c, unsigned long count);
+N
+Nvoid *ly_memmove(void *dest, const void *src, unsigned long n);
+N
+Nunsigned long ly_strlen(const char *s);
+N
+Nsigned long ly_strncmp(const char *cs, const char *ct, unsigned long count);
+N
+Nvoid *rt_memmove(void *dest, const void *src,  unsigned long n);
+N
+Nsigned long ly_memcmp(const void *cs, const void *ct,  unsigned long count);
+N
+Nsigned long ly_strcmp(const char *cs, const char *ct);
+N
+N#endif
+N
+L 12 "..\..\..\..\lib\ringbuffer\kfifo.h" 2
+N
+N#define min(x, y) ((x) < (y) ? (x) : (y))
+N
+Nstruct kfifo 
+N{
+N	unsigned int    in;
+N	unsigned int    out;
+N	unsigned int	mask;
+N	unsigned char *data;
+N};
+N
+Nunsigned int __kfifo_init(struct kfifo *fifo, void *buffer,
+N		unsigned int size, unsigned int esize);
+N
+Nunsigned int kfifo_in(struct kfifo *fifo,
+N		const unsigned char *buf, unsigned int len);
+N
+Nunsigned int kfifo_out(struct kfifo *fifo,
+N		void *buf, unsigned int len);
+N
+N#define kfifo_init(fifo, buffer, size) \
+N	__kfifo_init(fifo, buffer, size, 1)
+X#define kfifo_init(fifo, buffer, size) 	__kfifo_init(fifo, buffer, size, 1)
+N
+N#endif
+L 9 "..\..\..\..\lib\ringbuffer\kfifo.c" 2
+N
+Nunsigned int __kfifo_init(struct kfifo *fifo,
+N	void *buffer, unsigned int size, unsigned int esize)
+N{
+N	size /= esize; 
+N
+N	fifo->in = 0;
+N	fifo->out = 0;
+N	fifo->data = buffer;
+N	fifo->mask = size - 1;
+N
+N	return 0;
+N}
+N
+Nstatic void kfifo_copy_in(struct kfifo *fifo, 
+N	const unsigned char *src, unsigned int len, unsigned int off)
+N{
+N	unsigned int size = fifo->mask + 1;
+N	unsigned int l;
+N
+N	off &= fifo->mask;
+N
+N	l = min(len, size - off);		
+X	l = ((len) < (size - off) ? (len) : (size - off));		
+N		
+N	ly_memcpy(fifo->data + off, src, l);
+N
+N	ly_memcpy(fifo->data, src + l, len - l);
+N}
+N
+Nunsigned int kfifo_in(struct kfifo *fifo,
+N		const unsigned char* buf, unsigned int len)
+N{
+N	unsigned int l;
+N
+N	l = (fifo->mask + 1) - (fifo->in - fifo->out);
+N	if (len > l)
+N		len = l;
+N
+N	kfifo_copy_in(fifo, buf, len, fifo->in);
+N	fifo->in += len;
+N
+N	return len;
+N}
+N
+Nstatic void kfifo_copy_out(struct kfifo *fifo, void *dst,
+N		unsigned int len, unsigned int off)
+N{
+N	unsigned int size = fifo->mask + 1;
+N	unsigned int l;
+N
+N	off &= fifo->mask;
+N
+N	l = min(len, size - off);
+X	l = ((len) < (size - off) ? (len) : (size - off));
+N
+N	ly_memcpy(dst, fifo->data + off, l);
+W "..\..\..\..\lib\ringbuffer\kfifo.c" 64 16 arithmetic on pointer to void or function type
+N	ly_memcpy(dst + l, fifo->data, len - l);
+N	
+N}
+N
+Nunsigned int kfifo_out(struct kfifo *fifo,
+N		void *buf, unsigned int len)
+N{
+N	unsigned int l;
+N
+N	l = fifo->in - fifo->out;
+N	if (len > l)		
+N		len = l;
+N
+N	kfifo_copy_out(fifo, buf, len, fifo->out);
+N
+N	fifo->out += len;
+N
+N	return len;
+N}
+N
+N
+N

@@ -1,0 +1,13 @@
+L 1 "..\..\..\..\components\shell\msh_parse.c"
+N/*
+N * Copyright (c) 2006-2021, RT-Thread Development Team
+N *
+N * SPDX-License-Identifier: Apache-2.0
+N *
+N * Change Logs:
+N * Date           Author       Notes
+N * 2022-05-25     WangQiang    the first verion for msh parse
+N */
+N
+C "..\..\..\..\components\shell\msh_parse.c" 11 22 cannot open source input file "rtthread.h": No such file or directory
+N#include <rtthread.h>

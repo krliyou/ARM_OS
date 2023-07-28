@@ -1,0 +1,240 @@
+L 1 "..\..\..\..\lib\kservice.c"
+N
+N
+N/*
+N * @file           : kservice.c
+N * @autor          : liyou
+N * @date           : 2022/01/16
+N */
+N
+N#include "kservice.h"
+L 1 "..\..\..\..\lib\include\kservice.h" 1
+N
+N
+N#ifndef __KERVICE_H
+N#define __KERVICE_H
+N
+Nvoid *ly_memcpy(void *dst, const void *src, unsigned long count);
+N
+Nchar *ly_strncpy(char *dst, const char *src, unsigned long n);
+N
+Nvoid *ly_memset(void *s, int c, unsigned long count);
+N
+Nvoid *ly_memmove(void *dest, const void *src, unsigned long n);
+N
+Nunsigned long ly_strlen(const char *s);
+N
+Nsigned long ly_strncmp(const char *cs, const char *ct, unsigned long count);
+N
+Nvoid *rt_memmove(void *dest, const void *src,  unsigned long n);
+N
+Nsigned long ly_memcmp(const void *cs, const void *ct,  unsigned long count);
+N
+Nsigned long ly_strcmp(const char *cs, const char *ct);
+N
+N#endif
+N
+L 10 "..\..\..\..\lib\kservice.c" 2
+N
+Nvoid *ly_memcpy(void *dst, const void *src, unsigned long count)
+N{
+N    char *tmp = (char *)dst, *s = (char *)src;
+N    unsigned long   len;
+N
+N    if (tmp <= s || tmp > (s + count))
+N    {
+N        while (count--)
+N            *tmp ++ = *s ++;
+N    }
+N    else
+N    {
+N        for (len = count; len > 0; len --)
+N            tmp[len - 1] = s[len - 1];
+N    }
+N
+N    return dst;
+N}
+N
+N
+N/**
+N * This function will copy string no more than n bytes.
+N *
+N * @param dst the string to copy
+N * @param src the string to be copied
+N * @param n the maximum copied length
+N *
+N * @return the result
+N */
+Nchar *ly_strncpy(char *dst, const char *src, unsigned long n)
+N{
+N    if (n != 0)
+N    {
+N        char *d = dst;
+N        const char *s = src;
+N
+N        do
+N        {
+N            if ((*d++ = *s++) == 0)
+N            {
+N                /* NUL pad the remaining n-1 bytes */
+N                while (--n != 0)
+N                    *d++ = 0;
+N                break;
+N            }
+N        } while (--n != 0);
+N    }
+N
+N    return (dst);
+N}
+N
+N/**
+N * This function will set the content of memory to specified value
+N *
+N * @param s the address of source memory
+N * @param c the value shall be set in content
+N * @param count the copied length
+N *
+N * @return the address of source memory
+N */
+Nvoid *ly_memset(void *s, int c, unsigned long count)
+N{
+N    char *xs = (char *)s;
+N
+N    while (count--)
+N        *xs++ = c;
+N
+N    return s;
+N}
+N
+N/**
+N * This function will move memory content from source address to destination
+N * address.
+N *
+N * @param dest the address of destination memory
+N * @param src  the address of source memory
+N * @param n the copied length
+N *
+N * @return the address of destination memory
+N */
+Nvoid *ly_memmove(void *dest, const void *src, unsigned long n)
+N{
+N    char *tmp = (char *)dest, *s = (char *)src;
+N
+N    if (s < tmp && tmp < s + n)
+N    {
+N        tmp += n;
+N        s += n;
+N
+N        while (n--)
+N            *(--tmp) = *(--s);
+N    }
+N    else
+N    {
+N        while (n--)
+N            *tmp++ = *s++;
+N    }
+N
+N    return dest;
+N}
+N
+N/**
+N * This function will return the length of a string, which terminate will
+N * null character.
+N *
+N * @param s the string
+N *
+N * @return the length of string
+N */
+Nunsigned long ly_strlen(const char *s)
+N{
+N    const char *sc;
+N
+N    for (sc = s; *sc != '\0'; ++sc)
+N        ;
+N
+N    return sc - s;
+N}
+N
+N
+N/**
+N * This function will compare two strings with specified maximum length
+N *
+N * @param cs the string to be compared
+N * @param ct the string to be compared
+N * @param count the maximum compare length
+N *
+N * @return the result
+N */
+Nsigned long ly_strncmp(const char *cs, const char *ct, unsigned long count)
+N{
+N    register signed char __res = 0;
+N
+N    while (count)
+N    {
+N        if ((__res = *cs - *ct++) != 0 || !*cs++)
+N            break;
+N        count --;
+N    }
+N
+N    return __res;
+N}
+N
+N/**
+N * This function will move memory content from source address to destination
+N * address.
+N *
+N * @param dest the address of destination memory
+N * @param src  the address of source memory
+N * @param n the copied length
+N *
+N * @return the address of destination memory
+N */
+Nvoid *rt_memmove(void *dest, const void *src, unsigned long n)
+N{
+N    char *tmp = (char *)dest, *s = (char *)src;
+N
+N    if (s < tmp && tmp < s + n)
+N    {
+N        tmp += n;
+N        s += n;
+N
+N        while (n--)
+N            *(--tmp) = *(--s);
+N    }
+N    else
+N    {
+N        while (n--)
+N            *tmp++ = *s++;
+N    }
+N
+N    return dest;
+N}
+N
+N/**
+N * This function will compare two areas of memory
+N *
+N * @param cs one area of memory
+N * @param ct znother area of memory
+N * @param count the size of the area
+N *
+N * @return the result
+N */
+Nsigned long ly_memcmp(const void *cs, const void *ct,  unsigned long count)
+N{
+N    const unsigned char *su1, *su2;
+N    int res = 0;
+N
+N    for (su1 = cs, su2 = ct; 0 < count; ++su1, ++su2, count--)
+N        if ((res = *su1 - *su2) != 0)
+N            break;
+N
+N    return res;
+N}
+N
+Nsigned long ly_strcmp(const char *cs, const char *ct)
+N{
+N    while (*cs && *cs == *ct)
+N        cs++, ct++;
+N
+N    return (*cs - *ct);
+N}
