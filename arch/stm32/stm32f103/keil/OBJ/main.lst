@@ -17719,6 +17719,7 @@ Nvoid task2_entry(void *parameter)
 N{
 N}
 N
+N
 Nint main()
 N{
 N	os_startup();

@@ -5,25 +5,25 @@
                           AREA ||i.main||, CODE, READONLY, ALIGN=2
 
                   main PROC
-;;;26     
-;;;27     int main()
+;;;27     
+;;;28     int main()
 000000  b50e              PUSH     {r1-r3,lr}
-;;;28     {
-;;;29     	os_startup();
+;;;29     {
+;;;30     	os_startup();
 000002  f7fffffe          BL       os_startup
-;;;30     
-;;;31     	LED_Init();
+;;;31     
+;;;32     	LED_Init();
 000006  f7fffffe          BL       LED_Init
-;;;32     
-;;;33     	LED0_open();
+;;;33     
+;;;34     	LED0_open();
 00000a  2000              MOVS     r0,#0
 00000c  4914              LDR      r1,|L1.96|
 00000e  6008              STR      r0,[r1,#0]
-;;;34     	LED1_open();
+;;;35     	LED1_open();
 000010  4914              LDR      r1,|L1.100|
 000012  f8c101a0          STR      r0,[r1,#0x1a0]
-;;;35         
-;;;36     	ly_task_init(&task1, task1_entry, LY_NULL, 
+;;;36         
+;;;37     	ly_task_init(&task1, task1_entry, LY_NULL, 
 000016  2019              MOVS     r0,#0x19
 000018  2103              MOVS     r1,#3
 00001a  f44f7200          MOV      r2,#0x200
@@ -34,13 +34,13 @@
 000028  4910              LDR      r1,|L1.108|
 00002a  4811              LDR      r0,|L1.112|
 00002c  f7fffffe          BL       ly_task_init
-;;;37     		&task1_stack[0], sizeof(task1_stack), 3, 25);
-;;;38     	ly_task_startup(&task1);
+;;;38     		&task1_stack[0], sizeof(task1_stack), 3, 25);
+;;;39     	ly_task_startup(&task1);
 000030  480f              LDR      r0,|L1.112|
 000032  f7fffffe          BL       ly_task_startup
-;;;39     
 ;;;40     
-;;;41     	ly_task_init(&task2, task2_entry, LY_NULL, 
+;;;41     
+;;;42     	ly_task_init(&task2, task2_entry, LY_NULL, 
 000036  2032              MOVS     r0,#0x32
 000038  2103              MOVS     r1,#3
 00003a  f44f7200          MOV      r2,#0x200
@@ -51,21 +51,21 @@
 000048  490b              LDR      r1,|L1.120|
 00004a  480c              LDR      r0,|L1.124|
 00004c  f7fffffe          BL       ly_task_init
-;;;42     		&task2_stack[0], sizeof(task2_stack), 3, 50);
-;;;43     	ly_task_startup(&task2);
+;;;43     		&task2_stack[0], sizeof(task2_stack), 3, 50);
+;;;44     	ly_task_startup(&task2);
 000050  480a              LDR      r0,|L1.124|
 000052  f7fffffe          BL       ly_task_startup
-;;;44     
 ;;;45     
-;;;46     	system_scheduler_start();
+;;;46     
+;;;47     	system_scheduler_start();
 000056  f7fffffe          BL       system_scheduler_start
-;;;47     	
-;;;48     	while(1);
+;;;48     	
+;;;49     	while(1);
 00005a  bf00              NOP      
                   |L1.92|
 00005c  e7fe              B        |L1.92|
-;;;49     }
-;;;50     
+;;;50     }
+;;;51     
                           ENDP
 
 00005e  0000              DCW      0x0000

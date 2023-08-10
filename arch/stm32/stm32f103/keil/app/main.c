@@ -24,6 +24,7 @@ void task2_entry(void *parameter)
 {
 }
 
+
 int main()
 {
 	os_startup();

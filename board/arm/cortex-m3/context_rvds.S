@@ -28,17 +28,11 @@ interrupt_enable	PROC
 	BX		LR
 	ENDP
 
-;
-;  void rt_hw_context_switch(rt_uint32 from, rt_uint32 to);
-;  r0 -- from
-;  r1 -- to
-; 
 ly_context_switch_interrupt
     EXPORT ly_context_switch_interrupt
 ly_context_switch    PROC
     EXPORT ly_context_switch
 
-    ; set rt_thread_switch_interrupt_flag to 1
     LDR     r2, =ly_thread_switch_interrupt_flag
     LDR     r3, [r2]
     CMP     r3, #1
@@ -59,9 +53,6 @@ _reswitch
     BX      LR
     ENDP
 
-; r0 -- switch from thread stack
-; r1 -- switch to thread stack
-; psr, pc, lr, r12, r3, r2, r1, r0 are pushed into [from] stack
 PendSV_Handler   PROC
     EXPORT PendSV_Handler
 
@@ -99,11 +90,6 @@ pendsv_exit
     BX      lr
     ENDP
 
-;
-;  void rt_hw_context_switch_to(rt_uint32 to);
-;  r0 -- to
-;  this fucntion is used to perform the first thread switch
-; 
 ly_context_switch_to        PROC
     EXPORT ly_context_switch_to    
 
